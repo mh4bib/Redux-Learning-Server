@@ -28,6 +28,55 @@ async function run() {
         const documentationsCollection = client.db('redux-learning').collection('documentations'); 
         const usersCollection = client.db('redux-learning').collection('users'); 
 
+        //--------post a documentation
+        app.post('/doc', async (req, res) => {
+            const newItem = req.body;
+            console.log('new item added', newItem);
+            const result= await documentationsCollection.insertOne(newItem);
+            // res.send({result : 'success'})
+            res.send(result)
+        });
+
+        //-----get all doc
+        app.get('/doc', async (req, res) => {
+            const query ={};
+            const cursor = documentationsCollection.find(query)
+            const documentations = await cursor.toArray();
+            res.send(documentations);
+        })
+
+        //--- get individual doc
+        app.get('/doc/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await documentationsCollection.findOne(query);
+            res.send(result)
+        })
+
+        //-----modify individual doc
+        app.put('/doc/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateTopic = req.body;
+            const filter = {_id: ObjectId(id)};
+            const options = {upsert: true};
+            const updateDoc ={
+                $set: {
+                    quantity:updateTopic.quantity
+                }
+            };
+            const result = await documentationsCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+            console.log(result)
+        })
+
+        //----------delete a doc
+        app.delete('/doc/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await documentationsCollection.deleteOne(query);
+            res.send(result);
+            console.log(id, result)
+        })
 
     }
     finally{
