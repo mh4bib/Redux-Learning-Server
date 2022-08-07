@@ -1,11 +1,20 @@
 const express = require('express');
 const cors = require('cors')
 const app = express();
+const port = process.env.PORT || 5000;
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 // const jwt = require('jsonwebtoken')
 require('dotenv').config();
 
-const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+// DOMPurify
+const createDOMPurify = require('dompurify');
+const { JSDOM } = require('jsdom');
+
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
+
+
+
 // const ObjectId = require('mongodb').ObjectId;
 
 //middleware
@@ -30,6 +39,14 @@ async function run() {
 
         //--------post a documentation
         app.post('/doc', async (req, res) => {
+            const newItem = req.body;
+            console.log('new item added', newItem);
+            const result= await documentationsCollection.insertOne(newItem);
+            // res.send({result : 'success'})
+            res.send(result);
+        });
+
+        app.post('/doc/uploadFiles', async (req, res) => {
             const newItem = req.body;
             console.log('new item added', newItem);
             const result= await documentationsCollection.insertOne(newItem);
