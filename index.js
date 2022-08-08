@@ -6,14 +6,6 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 // const jwt = require('jsonwebtoken')
 require('dotenv').config();
 
-// DOMPurify
-const createDOMPurify = require('dompurify');
-const { JSDOM } = require('jsdom');
-
-const window = new JSDOM('').window;
-const DOMPurify = createDOMPurify(window);
-
-
 
 // const ObjectId = require('mongodb').ObjectId;
 
@@ -36,6 +28,7 @@ async function run() {
         console.log('server online')
         const documentationsCollection = client.db('redux-learning').collection('documentations'); 
         const usersCollection = client.db('redux-learning').collection('users'); 
+        const userInfoCollection = client.db('redux-learning').collection('userInfo'); 
 
         //--------post a documentation
         app.post('/doc', async (req, res) => {
@@ -113,6 +106,25 @@ async function run() {
             const user = await usersCollection.findOne({ email: email });
             const isAdmin = user.role === 'admin';
             res.send(isAdmin);
+        })
+
+        // UserInfo 
+        app.put('/userInfo/:email', async (req, res) => {
+            const email = req.params.email;
+            const userInfo = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: userInfo,
+            };
+            const result = await userInfoCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
+
+        app.get('/userInfo/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userInfoCollection.findOne({ email: email });
+            res.send(user);
         })
 
 
