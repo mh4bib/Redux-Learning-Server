@@ -90,6 +90,6 @@ app.get('/', (req, res) => {
     res.send('Server Online');
 })
 
-app.listen(PORT, () => {
-    console.log('Server on port', PORT)
+app.listen(port, () => {
+    console.log('Server on port', port)
 })
