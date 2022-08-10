@@ -1,11 +1,12 @@
 const express = require('express');
 const cors = require('cors')
 const app = express();
+const port = process.env.PORT || 5000;
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 // const jwt = require('jsonwebtoken')
 require('dotenv').config();
 
-const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+
 // const ObjectId = require('mongodb').ObjectId;
 
 //middleware
@@ -27,9 +28,18 @@ async function run() {
         console.log('server online')
         const documentationsCollection = client.db('redux-learning').collection('documentations'); 
         const usersCollection = client.db('redux-learning').collection('users'); 
+        const userInfoCollection = client.db('redux-learning').collection('userInfo'); 
 
         //--------post a documentation
         app.post('/doc', async (req, res) => {
+            const newItem = req.body;
+            console.log('new item added', newItem);
+            const result= await documentationsCollection.insertOne(newItem);
+            // res.send({result : 'success'})
+            res.send(result);
+        });
+
+        app.post('/doc/uploadFiles', async (req, res) => {
             const newItem = req.body;
             console.log('new item added', newItem);
             const result= await documentationsCollection.insertOne(newItem);
@@ -77,6 +87,49 @@ async function run() {
             res.send(result);
             console.log(id, result)
         })
+
+// Users 
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
+
+        app.get('/users', async (req, res) => {
+            const users = await usersCollection.find().toArray();
+            res.send(users);
+        });
+
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await usersCollection.findOne({ email: email });
+            const isAdmin = user?.role === "admin";
+            res.send(isAdmin);
+        })
+
+        // UserInfo 
+        app.put('/userInfo/:email', async (req, res) => {
+            const email = req.params.email;
+            const userInfo = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: userInfo,
+            };
+            const result = await userInfoCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
+
+        app.get('/userInfo/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userInfoCollection.findOne({ email: email });
+            res.send(user);
+        })
+
+
+
+
+
 
     }
     finally{
