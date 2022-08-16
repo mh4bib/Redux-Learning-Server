@@ -1,148 +1,181 @@
-const express = require('express');
-const cors = require('cors')
+const express = require("express");
+const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 // const jwt = require('jsonwebtoken')
-require('dotenv').config();
-
+require("dotenv").config();
 
 // const ObjectId = require('mongodb').ObjectId;
 
 //middleware
 app.use(
-    cors({
-      origin: true,
-      optionsSuccessStatus: 200,
-      credentials: true,
-    })
-  );
-app.use(express.json())
+  cors({
+    origin: true,
+    optionsSuccessStatus: 200,
+    credentials: true,
+  })
+);
+app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jyjlkyq.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
+});
 
 async function run() {
-    try{
-        await client.connect();
-        console.log('server online')
-        const documentationsCollection = client.db('redux-learning').collection('documentations'); 
-        const usersCollection = client.db('redux-learning').collection('users'); 
-        const userInfoCollection = client.db('redux-learning').collection('userInfo'); 
+  try {
+    await client.connect();
+    const documentationsCollection = client
+      .db("redux-learning")
+      .collection("documentations");
+    const routesCollection = client.db("redux-learning").collection("routes");
+    const usersCollection = client.db("redux-learning").collection("users");
+    const quizzesCollection = client.db("redux-learning").collection("quizzes");
+    const userInfoCollection = client
+      .db("redux-learning")
+      .collection("userInfo");
 
-        //--------post a documentation
-        app.post('/doc', async (req, res) => {
-            const newItem = req.body;
-            console.log('new item added', newItem);
-            const result= await documentationsCollection.insertOne(newItem);
-            // res.send({result : 'success'})
-            res.send(result);
-        });
+    // Nested Route
+    app.post("/routes", async (req, res) => {
+      const newItem = req.body;
+      const result = await routesCollection.insertOne(newItem);
+      // res.send({result : 'success'})
+      res.send(result);
+    });
 
-        app.post('/doc/uploadFiles', async (req, res) => {
-            const newItem = req.body;
-            console.log('new item added', newItem);
-            const result= await documentationsCollection.insertOne(newItem);
-            // res.send({result : 'success'})
-            res.send(result)
-        });
+    app.get("/routes", async (req, res) => {
+        const query = {};
+        const cursor = await routesCollection.find(query);
+        const routes = await cursor.toArray();
+        res.send(routes);
+      });
 
-        //-----get all doc
-        app.get('/doc', async (req, res) => {
-            const query ={};
-            const cursor = documentationsCollection.find(query)
-            const documentations = await cursor.toArray();
-            res.send(documentations);
-        })
+    //--------post a documentation
+    app.post("/doc", async (req, res) => {
+      const newItem = req.body;
+      console.log("new item added", newItem);
+      const result = await documentationsCollection.insertOne(newItem);
+      // res.send({result : 'success'})
+      res.send(result);
+    });
 
-        //--- get individual doc
-        app.get('/doc/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = {_id: ObjectId(id)};
-            const result = await documentationsCollection.findOne(query);
-            res.send(result)
-        })
+    //-----get all doc
+    app.get("/doc", async (req, res) => {
+      const query = {};
+      const cursor = documentationsCollection.find(query);
+      const documentations = await cursor.toArray();
+      res.send(documentations);
+    });
 
-        //-----modify individual doc
-        app.put('/doc/:id', async (req, res) => {
-            const id = req.params.id;
-            const updateTopic = req.body;
-            const filter = {_id: ObjectId(id)};
-            const options = {upsert: true};
-            const updateDoc ={
-                $set: {
-                    quantity:updateTopic.quantity
-                }
-            };
-            const result = await documentationsCollection.updateOne(filter, updateDoc, options);
-            res.send(result)
-            console.log(result)
-        })
+    //--- get individual doc
+    app.get("/doc/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await documentationsCollection.findOne(query);
+      res.send(result);
+    });
 
-        //----------delete a doc
-        app.delete('/doc/:id', async(req, res) => {
-            const id = req.params.id;
-            const query = {_id: ObjectId(id)};
-            const result = await documentationsCollection.deleteOne(query);
-            res.send(result);
-            console.log(id, result)
-        })
+    //-----modify individual doc
+    app.put("/doc/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateTopic = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          quantity: updateTopic.quantity,
+        },
+      };
+      const result = await documentationsCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+      console.log(result);
+    });
 
-// Users 
-        app.post('/users', async (req, res) => {
-            const user = req.body;
-            const result = await usersCollection.insertOne(user);
-            res.send(result);
-        })
+    //----------delete a doc
+    app.delete("/doc/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await documentationsCollection.deleteOne(query);
+      res.send(result);
+      console.log(id, result);
+    });
 
-        app.get('/users', async (req, res) => {
-            const users = await usersCollection.find().toArray();
-            res.send(users);
-        });
+    // Users
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
 
-        app.get('/admin/:email', async (req, res) => {
-            const email = req.params.email;
-            const user = await usersCollection.findOne({ email: email });
-            const isAdmin = user?.role === "admin";
-            res.send(isAdmin);
-        })
+    app.get("/users", async (req, res) => {
+      const users = await usersCollection.find().toArray();
+      res.send(users);
+    });
 
-        // UserInfo 
-        app.put('/userInfo/:email', async (req, res) => {
-            const email = req.params.email;
-            const userInfo = req.body;
-            const filter = { email: email };
-            const options = { upsert: true };
-            const updateDoc = {
-                $set: userInfo,
-            };
-            const result = await userInfoCollection.updateOne(filter, updateDoc, options);
-            res.send(result);
-        })
+    app.get("/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await usersCollection.findOne({ email: email });
+      const isAdmin = user?.role === "admin";
+      res.send(isAdmin);
+    });
 
-        app.get('/userInfo/:email', async (req, res) => {
-            const email = req.params.email;
-            const user = await userInfoCollection.findOne({ email: email });
-            res.send(user);
-        })
+    // UserInfo
+    app.put("/userInfo/:email", async (req, res) => {
+      const email = req.params.email;
+      const userInfo = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: userInfo,
+      };
+      const result = await userInfoCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    app.get("/userInfo/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await userInfoCollection.findOne({ email: email });
+      res.send(user);
+    });
+
+// Quizes 
+app.post("/quizzes", async (req, res) => {
+  const newItem = req.body;
+  const result = await quizzesCollection.insertOne(newItem);
+  // res.send({result : 'success'})
+  res.send(result);
+});
+
+app.get("/quizzes", async (req, res) => {
+  const query = {};
+  const cursor = await quizzesCollection.find(query);
+  const quizzes = await cursor.toArray();
+  res.send(quizzes);
+});
 
 
-
-
-
-
-    }
-    finally{
-        // await client.close();
-    }
+  } finally {
+    // await client.close();
+  }
 }
 
-run().catch(console.dir)
+run().catch(console.dir);
 
-app.get('/', (req, res) => {
-    res.send('Server Online');
-})
+app.get("/", (req, res) => {
+  res.send("Server Online");
+});
 
 app.listen(port, () => {
-    console.log('Server on port', port)
-})
+  console.log("Server on port", port);
+});
