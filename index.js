@@ -35,8 +35,9 @@ async function run() {
     const usersCollection = client.db("redux-learning").collection("users");
     const quizzesCollection = client.db("redux-learning").collection("quizzes");
     const userInfoCollection = client
+    const reviewsCollection = client
       .db("redux-learning")
-      .collection("userInfo");
+      .collection("reviews");
 
     // Nested Route
     app.post("/routes", async (req, res) => {
@@ -163,6 +164,21 @@ app.get("/quizzes", async (req, res) => {
   const quizzes = await cursor.toArray();
   res.send(quizzes);
 });
+
+
+// reviews 
+app.post('/reviews', async (req, res) => {
+  const newItem = req.body;
+  const result = await reviewsCollection.insertOne(newItem);
+  res.send(result);
+});
+
+app.get('/reviews', async (req, res) => {
+  const query = {};
+  const cursor = reviewsCollection.find(query);
+  const reviews = await cursor.toArray();
+  res.send(reviews);
+})
 
 
   } finally {
