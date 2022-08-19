@@ -5,6 +5,8 @@ const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 // const jwt = require('jsonwebtoken')
 require('dotenv').config();
+// const nodemailer = require('nodemailer');
+const mg = require('nodemailer-mailgun-transport');
 
 
 // const ObjectId = require('mongodb').ObjectId;
@@ -138,6 +140,11 @@ async function run() {
 }
 
 run().catch(console.dir)
+
+app.get("/email", async(req,res) => {
+    res.send({status: true})
+})
+
 
 app.get('/', (req, res) => {
     res.send('Server Online');
