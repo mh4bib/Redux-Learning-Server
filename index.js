@@ -42,21 +42,23 @@ async function run() {
     const userInfoCollection = client
       .db("redux-learning")
       .collection("userInfo");
+    const reviewsCollection = client.db("redux-learning").collection("reviews");
+    const forumsCollection = client.db("redux-learning").collection("forums");
+    const forumsAnswerCollection = client.db("redux-learning").collection("forumsAnswer");
 
     // Nested Route
     app.post("/routes", async (req, res) => {
       const newItem = req.body;
       const result = await routesCollection.insertOne(newItem);
-      // res.send({result : 'success'})
       res.send(result);
     });
 
     app.get("/routes", async (req, res) => {
-        const query = {};
-        const cursor = await routesCollection.find(query);
-        const routes = await cursor.toArray();
-        res.send(routes);
-      });
+      const query = {};
+      const cursor = await routesCollection.find(query);
+      const routes = await cursor.toArray();
+      res.send(routes);
+    });
 
     //--------post a documentation
     app.post("/doc", async (req, res) => {
@@ -154,21 +156,65 @@ async function run() {
       res.send(user);
     });
 
-// Quizes 
-app.post("/quizzes", async (req, res) => {
-  const newItem = req.body;
-  const result = await quizzesCollection.insertOne(newItem);
-  // res.send({result : 'success'})
-  res.send(result);
-});
+    // Quizzes
+    app.post("/quizzes", async (req, res) => {
+      const newItem = req.body;
+      const result = await quizzesCollection.insertOne(newItem);
+      // res.send({result : 'success'})
+      res.send(result);
+    });
 
-app.get("/quizzes", async (req, res) => {
-  const query = {};
-  const cursor = await quizzesCollection.find(query);
-  const quizzes = await cursor.toArray();
-  res.send(quizzes);
-});
+    app.get("/quizzes", async (req, res) => {
+      const query = {};
+      const cursor = await quizzesCollection.find(query);
+      const quizzes = await cursor.toArray();
+      res.send(quizzes);
+    });
 
+    // reviews
+    app.post("/reviews", async (req, res) => {
+      const newItem = req.body;
+      const result = await reviewsCollection.insertOne(newItem);
+      res.send(result);
+    });
+
+    app.get("/reviews", async (req, res) => {
+      const query = {};
+      const cursor = reviewsCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+
+    // forums 
+    app.post("/forums", async (req, res) => {
+      const newItem = req.body;
+      const result = await forumsCollection.insertOne(newItem);
+      res.send(result);
+    });
+
+    app.get("/forums", async (req, res) => {
+      const query = {};
+      const cursor = forumsCollection.find(query);
+      const forums = await cursor.toArray();
+      res.send(forums);
+    });
+
+    // forums Answer
+    app.post("/forumsAnswer", async (req, res) => {
+      const newItem = req.body;
+      const result = await forumsAnswerCollection.insertOne(newItem);
+      res.send(result);
+    });
+
+    app.get("/forumsAnswer/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { ansID: id };
+      const cursor = forumsAnswerCollection.find(query);
+      const forumsAnswer = await cursor.toArray();
+      res.send(forumsAnswer);
+    });
+
+    
 
   } finally {
     // await client.close();
