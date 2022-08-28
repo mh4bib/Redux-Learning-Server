@@ -44,7 +44,9 @@ async function run() {
       .collection("userInfo");
     const reviewsCollection = client.db("redux-learning").collection("reviews");
     const forumsCollection = client.db("redux-learning").collection("forums");
-    const forumsAnswerCollection = client.db("redux-learning").collection("forumsAnswer");
+    const forumsAnswerCollection = client
+      .db("redux-learning")
+      .collection("forumsAnswer");
 
     // Nested Route
     app.post("/routes", async (req, res) => {
@@ -58,6 +60,13 @@ async function run() {
       const cursor = await routesCollection.find(query);
       const routes = await cursor.toArray();
       res.send(routes);
+    });
+
+    app.delete("/routes/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await routesCollection.deleteOne(query);
+      res.send(result);
     });
 
     //--------post a documentation
@@ -126,6 +135,13 @@ async function run() {
       res.send(users);
     });
 
+    app.delete('/users/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
+  });
+
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
       const user = await usersCollection.findOne({ email: email });
@@ -185,7 +201,7 @@ async function run() {
       res.send(reviews);
     });
 
-    // forums 
+    // forums
     app.post("/forums", async (req, res) => {
       const newItem = req.body;
       const result = await forumsCollection.insertOne(newItem);
@@ -213,9 +229,6 @@ async function run() {
       const forumsAnswer = await cursor.toArray();
       res.send(forumsAnswer);
     });
-
-    
-
   } finally {
     // await client.close();
   }
