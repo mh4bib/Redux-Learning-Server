@@ -42,6 +42,9 @@ async function run() {
     const forumsAnswerCollection = client
       .db("redux-learning")
       .collection("forumsAnswer");
+    const userAnswerCollection = client
+      .db("redux-learning")
+      .collection("userAnswer");
 
     // Nested Route
     app.post("/routes", async (req, res) => {
@@ -130,12 +133,12 @@ async function run() {
       res.send(users);
     });
 
-    app.delete('/users/:email', async (req, res) => {
+    app.delete("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const result = await usersCollection.deleteOne(query);
       res.send(result);
-  });
+    });
 
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
@@ -222,8 +225,52 @@ async function run() {
       const query = { ansID: id };
       const cursor = forumsAnswerCollection.find(query);
       const forumsAnswer = await cursor.toArray();
+      console.log(forumsAnswer);
       res.send(forumsAnswer);
     });
+
+    // userAnswer
+    app.post("/userAnswer", async (req, res) => {
+      const newItem = req.body;
+      const result = await userAnswerCollection.insertOne(newItem);
+      console.log(result);
+      // res.send({result : 'success'})
+      res.send(result);
+    });
+
+    // app.put("/userAnswer/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   const updateTopic = req.body;
+    //   const filter = { email: email };
+    //   const options = { upsert: true };
+    //   const updateDoc = {
+    //     $set: {
+    //       selectedAns: updateTopic.selectedAns,
+    //       result: updateTopic.result,
+    //       quizTitle: updateTopic.quizTitle,
+    //       completed: updateTopic.completed,
+    //       // quantity: updateTopic.quantity,
+    //     },
+    //   };
+    //   const result = await userAnswerCollection.updateOne(
+    //     filter,
+    //     updateDoc,
+    //     options
+    //   );
+    //   res.send(result);
+    //   console.log(result);
+    // });
+
+    app.get("/userAnswer/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email:email};
+      const cursor = userAnswerCollection.find(query);
+      const forumsAnswer = await cursor.toArray();
+      console.log(forumsAnswer);
+      res.send(forumsAnswer);
+    });
+
+    
   } finally {
     // await client.close();
   }
