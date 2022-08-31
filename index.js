@@ -39,6 +39,8 @@ async function run() {
       .collection("userInfo");
     const reviewsCollection = client.db("redux-learning").collection("reviews");
     const forumsCollection = client.db("redux-learning").collection("forums");
+    const skillsCollection = client.db("redux-learning").collection("skills");
+    const educationCollection = client.db("redux-learning").collection("education");
     const forumsAnswerCollection = client
       .db("redux-learning")
       .collection("forumsAnswer");
@@ -263,14 +265,65 @@ async function run() {
 
     app.get("/userAnswer/:email", async (req, res) => {
       const email = req.params.email;
-      const query = { email:email};
+      const query = { email: email };
       const cursor = userAnswerCollection.find(query);
       const forumsAnswer = await cursor.toArray();
       console.log(forumsAnswer);
       res.send(forumsAnswer);
     });
 
-    
+
+    // user skills update
+
+    app.put("/skills/:email", async (req, res) => {
+      const email = req.params.email;
+      const userInfo = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: userInfo,
+      };
+      const result = await skillsCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    app.get('/skills/:email', async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const result = await skillsCollection.findOne(filter);
+      res.send(result)
+    })
+
+    // education update
+
+    app.put("/education/:email", async (req, res) => {
+      const email = req.params.email;
+      const userInfo = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: userInfo,
+      };
+      const result = await educationCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    app.get('/education/:email', async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const result = await educationCollection.findOne(filter);
+      res.send(result)
+    })
+
+
   } finally {
     // await client.close();
   }
