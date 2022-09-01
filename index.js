@@ -40,13 +40,18 @@ async function run() {
     const reviewsCollection = client.db("redux-learning").collection("reviews");
     const forumsCollection = client.db("redux-learning").collection("forums");
     const skillsCollection = client.db("redux-learning").collection("skills");
-    const experienceCollection = client.db("redux-learning").collection("experience");
+    // const experienceCollection = client
+    //   .db("redux-learning")
+    //   .collection("experience");
     const forumsAnswerCollection = client
       .db("redux-learning")
       .collection("forumsAnswer");
     const userAnswerCollection = client
       .db("redux-learning")
       .collection("userAnswer");
+    const progressCollection = client
+      .db("redux-learning")
+      .collection("userProgress");
 
     // Nested Route
     app.post("/routes", async (req, res) => {
@@ -272,7 +277,6 @@ async function run() {
       res.send(forumsAnswer);
     });
 
-
     // user skills update
 
     app.put("/skills/:email", async (req, res) => {
@@ -291,37 +295,37 @@ async function run() {
       res.send(result);
     });
 
-    app.get('/skills/:email', async (req, res) => {
+    app.get("/skills/:email", async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
       const result = await skillsCollection.findOne(filter);
-      res.send(result)
-    })
-
-    // education update
-
-    app.put("/education/:email", async (req, res) => {
-      const email = req.params.email;
-      const userInfo = req.body;
-      const filter = { email: email };
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: userInfo,
-      };
-      const result = await educationCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
       res.send(result);
     });
 
-    app.get('/education/:email', async (req, res) => {
-      const email = req.params.email;
-      const filter = { email: email };
-      const result = await educationCollection.findOne(filter);
-      res.send(result)
-    })
+    // education update
+
+    // app.put("/education/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   const userInfo = req.body;
+    //   const filter = { email: email };
+    //   const options = { upsert: true };
+    //   const updateDoc = {
+    //     $set: userInfo,
+    //   };
+    //   const result = await educationCollection.updateOne(
+    //     filter,
+    //     updateDoc,
+    //     options
+    //   );
+    //   res.send(result);
+    // });
+
+    // app.get("/education/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   const filter = { email: email };
+    //   const result = await educationCollection.findOne(filter);
+    //   res.send(result);
+    // });
 
     // experience update
     // app.put("/experience/:email", async (req, res) => {
@@ -340,7 +344,41 @@ async function run() {
     //   res.send(result);
     // });
 
+    //ProgressBar
+    app.put("/progress/:email", async (req, res) => {
+      const email = req.params.email;
+      const progress = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          progress: progress.progress,
+          blog: progress.blog,
+          position: progress.position,
+        },
+      };
+      const result = await progressCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
 
+    app.get("/progress/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const result = await progressCollection.findOne(filter);
+      res.send(result);
+    });
+
+    app.post("/progress", async (req, res) => {
+      const newItem = req.body;
+      const result = await progressCollection.insertOne(newItem);
+      console.log(result);
+      // res.send({result : 'success'})
+      res.send(result);
+    });
   } finally {
     // await client.close();
   }
