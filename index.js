@@ -40,9 +40,12 @@ async function run() {
     const reviewsCollection = client.db("redux-learning").collection("reviews");
     const forumsCollection = client.db("redux-learning").collection("forums");
     const skillsCollection = client.db("redux-learning").collection("skills");
-    // const experienceCollection = client
-    //   .db("redux-learning")
-    //   .collection("experience");
+    const educationCollection = client
+      .db("redux-learning")
+      .collection("education");
+    const experienceCollection = client
+      .db("redux-learning")
+      .collection("experience");
     const forumsAnswerCollection = client
       .db("redux-learning")
       .collection("forumsAnswer");
@@ -322,45 +325,52 @@ async function run() {
 
     // education update
 
-    // app.put("/education/:email", async (req, res) => {
-    //   const email = req.params.email;
-    //   const userInfo = req.body;
-    //   const filter = { email: email };
-    //   const options = { upsert: true };
-    //   const updateDoc = {
-    //     $set: userInfo,
-    //   };
-    //   const result = await educationCollection.updateOne(
-    //     filter,
-    //     updateDoc,
-    //     options
-    //   );
-    //   res.send(result);
-    // });
+    app.put("/education/:email", async (req, res) => {
+      const email = req.params.email;
+      const userInfo = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: userInfo,
+      };
+      const result = await educationCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
 
-    // app.get("/education/:email", async (req, res) => {
-    //   const email = req.params.email;
-    //   const filter = { email: email };
-    //   const result = await educationCollection.findOne(filter);
-    //   res.send(result);
-    // });
+    app.get("/education/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const result = await educationCollection.findOne(filter);
+      res.send(result);
+    });
 
     // experience update
-    // app.put("/experience/:email", async (req, res) => {
-    //   const email = req.params.email;
-    //   const userInfo = req.body;
-    //   const filter = { email: email };
-    //   const options = { upsert: true };
-    //   const updateDoc = {
-    //     $set: userInfo,
-    //   };
-    //   const result = await experienceCollection.updateOne(
-    //     filter,
-    //     updateDoc,
-    //     options
-    //   );
-    //   res.send(result);
-    // });
+    app.put("/experience/:email", async (req, res) => {
+      const email = req.params.email;
+      const userInfo = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: userInfo,
+      };
+      const result = await experienceCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    app.get("/experience/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const result = await experienceCollection.findOne(filter);
+      res.send(result);
+    });
 
     //ProgressBar
     app.put("/progress/:email", async (req, res) => {
