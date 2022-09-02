@@ -154,6 +154,24 @@ async function run() {
       res.send(isAdmin);
     });
 
+    app.put("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const requester = req.body.email;
+      console.log(email, requester);
+      const requesterAccount = await usersCollection.findOne({
+        email: requester,
+      });
+      if (requesterAccount.role === "admin") {
+        const filter = { email: email };
+        const updateDoc = {
+          $set: { role: "admin" },
+        };
+        const result = await usersCollection.updateOne(filter, updateDoc);
+
+        res.send(result);
+      }
+    });
+
     // UserInfo
     app.put("/userInfo/:email", async (req, res) => {
       const email = req.params.email;
